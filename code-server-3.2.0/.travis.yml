@@ -1,0 +1,58 @@
+language: minimal
+
+jobs:
+  include:
+    - name: Test
+      if: tag IS blank
+      script: ./ci/image/run.sh "yarn && git submodule update --init && yarn vscode:patch && ./ci/ci.sh"
+      deploy: null
+    - name: Linux Release
+      if: tag IS present
+      script:
+        - travis_wait 60 ./ci/image/run.sh "yarn && yarn vscode && ci/release.sh && ./ci/build-test.sh"
+        - ./ci/release-image/push.sh
+    - name: Linux ARM64 Release
+      if: tag IS present
+      script:
+        - ./ci/image/run.sh "yarn && yarn vscode && ci/release.sh && ./ci/build-test.sh"
+        - ./ci/release-image/push.sh
+      arch: arm64
+    - name: MacOS Release
+      if: tag IS present
+      os: osx
+      language: node_js
+      node_js: 12
+      script: yarn && yarn vscode && travis_wait 60 ci/release.sh && ./ci/build-test.sh
+
+before_deploy:
+  - echo "$JSON_KEY" | base64 --decode > ./ci/key.json
+
+deploy:
+  - provider: releases
+    edge: true
+    draft: true
+    overwrite: true
+    tag_name: $TRAVIS_TAG
+    target_commitish: $TRAVIS_COMMIT
+    name: $TRAVIS_TAG
+    file:
+      - release/*.tar.gz
+      - release/*.zip
+    on:
+      tags: true
+  - provider: gcs
+    edge: true
+    bucket: "codesrv-ci.cdr.sh"
+    upload_dir: "releases"
+    key_file: ./ci/key.json
+    local_dir: release-upload
+    on:
+      tags: true
+      # TODO: The gcs provider fails to install on arm64.
+      condition: $TRAVIS_CPU_ARCH = amd64
+
+cache:
+  timeout: 600
+  yarn: true
+  directories:
+    - lib/vscode/.build/extensions

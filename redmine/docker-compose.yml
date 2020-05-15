@@ -1,0 +1,27 @@
+# docker-compose.yml
+version: '3.1'
+
+services:
+     redmine:
+          image: redmine
+          restart: always
+          container_name: redmine
+          ports:
+               - 3000:3000
+          environment:
+               REDMINE_DB_MYSQL: db
+               REDMINE_DB_PASSWORD: redmine
+               REDMINE_DB_DATABASE: redmine
+               REDMINE_DB_ENCODING: utf8
+#               REDMINE_NO_DB_MIGRATE: true
+     db:
+          image: mysql
+          restart: always
+          ports:
+              - 3306:3306
+          environment:
+               MYSQL_ROOT_PASSWORD: redmine
+               MYSQL_DATABASE: redmine
+          command:
+               - --character-set-server=utf8mb4
+               - --collation-server=utf8mb4_unicode_ci
