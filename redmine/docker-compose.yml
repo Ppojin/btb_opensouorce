@@ -14,7 +14,6 @@ services:
                REDMINE_DB_DATABASE: redmine
                REDMINE_DB_ENCODING: utf8
 #               REDMINE_NO_DB_MIGRATE: true
-          network: host
           
      db:
           image: mysql
@@ -27,4 +26,3 @@ services:
           command:
                - --character-set-server=utf8mb4
                - --collation-server=utf8mb4_unicode_ci
-          network: host
