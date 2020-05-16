@@ -2,27 +2,40 @@
 version: '3.1'
 
 services:
-     redmine:
-          image: redmine
-          restart: always
-          container_name: redmine
-          ports:
-               - 3000:3000
-          environment:
-               REDMINE_DB_MYSQL: db
-               REDMINE_DB_PASSWORD: redmine
-               REDMINE_DB_DATABASE: redmine
-               REDMINE_DB_ENCODING: utf8
+  redmine:
+    image: redmine
+    restart: always
+    container_name: redmine
+    ports:
+      - 3000:3000
+    networks: 
+      - redmine
+    depends_on: 
+      - db
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: redmine
+      REDMINE_DB_DATABASE: redmine
+      REDMINE_DB_ENCODING: utf8
 #               REDMINE_NO_DB_MIGRATE: true
           
-     db:
-          image: mysql
-          restart: always
-          ports:
-              - 3306:3306
-          environment:
-               MYSQL_ROOT_PASSWORD: redmine
-               MYSQL_DATABASE: redmine
-          command:
-               - --character-set-server=utf8mb4
-               - --collation-server=utf8mb4_unicode_ci
+  db:
+    image: mysql:5.7
+    restart: always
+    ports:
+      - 3306:3306
+    networks: 
+      - redmine
+    environment:
+      MYSQL_ROOT_PASSWORD: redmine
+      MYSQL_DATABASE: redmine
+    volumes:
+      # - ./data/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+      - ./data/mysql:/var/lib/mysql
+      # - ./mysql_dump:/docker-entrypoint-initdb.d
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+networks: 
+  redmine:
