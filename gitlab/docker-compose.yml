@@ -1,0 +1,26 @@
+# sudo docker run --detach \
+#     --hostname gitlab.ailab.com \
+#     --publish 8897:80 --publish 6015:22 \
+#     --name gitlab \
+#     --restart always \
+#     --volume ./gitlab/config:/home/ailab/GitLab \
+#     --volume ./gitlab/logs:/home/ailab/GitLab/log \
+#     --volume ./gitlab/data:/home/ailab/GitLab/data \
+#     gitlab/gitlab-ce:latest
+
+version: '3.1'
+
+services:
+    gitlab:
+        image: gitlab/gitlab-ce:latest
+        restart: always
+        container_name: gitlab-ce
+        ports: 
+            - "8897:80"
+            - "6015:22"
+        volumes:
+            - ./gitlab/config:/home/ailab/GitLab
+            - ./gitlab/logs:/home/ailab/GitLab/log
+            - ./gitlab/data:/home/ailab/GitLab/data
+        environment: 
+            hostname: gitlab.ailab.com
