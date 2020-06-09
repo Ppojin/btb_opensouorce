@@ -16,7 +16,7 @@ services:
         restart: always
         container_name: gitlab-ce
         ports: 
-            - "8897:80"
+            - "8897:8080"
             - "6015:22"
         volumes:
             - ./gitlab/config:/home/ailab/GitLab
